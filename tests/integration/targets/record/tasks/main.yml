@@ -1,0 +1,51 @@
+---
+- name: Test missing required arguments
+  host_uk.cloudns.record:
+    auth_id: "123"
+  ignore_errors: true
+  register: result
+
+- name: Verify failure on missing args
+  assert:
+    that:
+      - result.failed
+      - "'missing required arguments' in result.msg"
+
+- name: Test invalid authentication (Local PHP)
+  host_uk.cloudns.record:
+    auth_id: "0000"
+    auth_password: "wrongpassword"
+    domain: "example.com"
+    type: "A"
+    value: "1.2.3.4"
+    state: "present"
+  ignore_errors: true
+  register: result_local_auth
+
+- name: Verify failure on invalid auth (Local PHP)
+  assert:
+    that:
+      - result_local_auth.failed
+      # The PHP script should run and return an API error or SDK error.
+      # We check if 'msg' contains something relevant or if 'failed' is true.
+      # The SDK might return "Invalid authentication" or similar.
+      - result_local_auth.msg is defined
+
+- name: Test invalid authentication (Docker)
+  host_uk.cloudns.record:
+    auth_id: "0000"
+    auth_password: "wrongpassword"
+    domain: "example.com"
+    type: "A"
+    value: "1.2.3.4"
+    state: "present"
+    use_docker: true
+    docker_image: "php:cli"
+  ignore_errors: true
+  register: result_docker_auth
+
+- name: Verify failure on invalid auth (Docker)
+  assert:
+    that:
+      - result_docker_auth.failed
+      - result_docker_auth.msg is defined
