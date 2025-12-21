@@ -1,0 +1,13 @@
+namespace: host_uk
+name: cloudns
+version: 1.0.0
+readme: README.md
+authors:
+  - Jules
+description: Ansible collection for ClouDNS using PHP SDK.
+license:
+  - MIT
+tags:
+  - dns
+  - cloudns
+repository: http://github.com/ClouDNS/cloudns-php-sdk

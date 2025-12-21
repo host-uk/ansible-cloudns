@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: ansible_collections/host_uk/cloudns
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Run Sanity Tests
+        run: |
+          cd ansible_collections/host_uk/cloudns
+          ansible-test sanity --docker --python 3.9
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: ansible_collections/host_uk/cloudns
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Setup PHP (for local tests)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl, json
+
+      - name: Pull Docker image (for docker tests)
+        run: docker pull php:cli
+
+      - name: Run Integration Tests
+        run: |
+          cd ansible_collections/host_uk/cloudns
+          # Running locally to access host's PHP and Docker
+          ansible-test integration --local --python 3.9 record
