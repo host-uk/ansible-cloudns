@@ -52,7 +52,7 @@ class ActionModule(ActionBase):
 
         # Execute the module
         result = self._execute_module(
-            module_name='cloudns.cloudns.record',
+            module_name='host_uk.cloudns.record',
             module_args=module_args,
             task_vars=task_vars,
             wrap_async=self._task.async_val

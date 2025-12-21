@@ -75,7 +75,7 @@ author:
 
 EXAMPLES = r'''
 - name: Add A record using local PHP
-  cloudns.cloudns.record:
+  host_uk.cloudns.record:
     auth_id: 1234
     auth_password: "secretpassword"
     domain: example.com
@@ -84,7 +84,7 @@ EXAMPLES = r'''
     value: 1.2.3.4
 
 - name: Update IP using Docker
-  cloudns.cloudns.record:
+  host_uk.cloudns.record:
     auth_id: 1234
     auth_password: "secretpassword"
     domain: example.com

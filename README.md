@@ -1,6 +1,6 @@
 # ClouDNS Ansible Collection
 
-This repository contains the ClouDNS Ansible Collection, which allows you to manage ClouDNS resources (specifically DNS records) using Ansible.
+This repository contains the ClouDNS Ansible Collection (`host_uk.cloudns`), which allows you to manage ClouDNS resources (specifically DNS records) using Ansible.
 
 It leverages the [official ClouDNS PHP SDK](https://github.com/ClouDNS/cloudns-php-sdk) to communicate with the API.
 
@@ -30,7 +30,7 @@ ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk
 
 ### Modules
 
-* `cloudns.cloudns.record`: Manage DNS records.
+* `host_uk.cloudns.record`: Manage DNS records.
 
 ### Example Playbook
 
@@ -41,7 +41,7 @@ ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk
   connection: local
   tasks:
     - name: Ensure A record exists
-      cloudns.cloudns.record:
+      host_uk.cloudns.record:
         auth_id: 1234
         auth_password: "your_password"
         domain: example.com
@@ -60,7 +60,7 @@ If you don't want to install PHP on the target machine, you can use Docker:
   connection: local
   tasks:
     - name: Update IP for a server using Docker
-      cloudns.cloudns.record:
+      host_uk.cloudns.record:
         auth_id: 1234
         auth_password: "your_password"
         domain: example.com
