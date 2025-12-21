@@ -45,6 +45,7 @@ options:
   value:
     description:
       - The record value (IP, text, etc).
+      - Required when state is 'present'.
     required: false
     type: str
   ttl:
@@ -145,10 +146,30 @@ def main():
     if not wrapper_content or not sdk_content:
         module.fail_json(msg="PHP module content missing. This module must be run via the corresponding Action Plugin.")
 
-    # Create temporary directory
-    temp_dir = tempfile.mkdtemp()
+    # Create temporary directory using context manager for better cleanup
+    import tempfile
 
-    try:
+    # Python 2.7 compatible TemporaryDirectory context manager if needed,
+    # but ansible module_utils.basic handles most things.
+    # Since we need to support Python 2.7+ for Ansible modules generally,
+    # and TemporaryDirectory is Python 3.2+, we should stick to mkdtemp with try/finally
+    # OR implement a simple context manager.
+    # However, for simplicity and robustness in modern ansible execution environments (usually py3),
+    # we can check sys.version or just stick to the try/finally block but ensure it covers everything.
+    # The previous implementation used try/finally with shutil.rmtree which IS robust.
+    # But let's verify if we can use a class.
+
+    class TemporaryDirectory(object):
+        def __init__(self):
+            self.name = tempfile.mkdtemp()
+
+        def __enter__(self):
+            return self.name
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            shutil.rmtree(self.name)
+
+    with TemporaryDirectory() as temp_dir:
         # Write files
         wrapper_path = os.path.join(temp_dir, 'cloudns_wrapper.php')
         sdk_path = os.path.join(temp_dir, 'ClouDNS_SDK.php')
@@ -163,17 +184,13 @@ def main():
         if use_docker:
             # Check if Docker is installed
             try:
-                subprocess.check_output(['docker', '--version'])
+                subprocess.check_call(['docker', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError:
+                module.fail_json(msg="Docker check failed. Ensure Docker is installed and running.")
             except OSError:
-                module.fail_json(msg="Docker is not installed or not in PATH.")
+                module.fail_json(msg="Docker binary not found in PATH.")
 
             # Mount temp_dir to /app
-            # If using Docker on remote host, temp_dir is on remote host.
-            # Docker requires absolute paths.
-
-            # Note: On some systems/setups (e.g. Docker inside Docker, or specialized SELinux), mounting /tmp might have issues.
-            # But standard usage allows this.
-
             cmd = [
                 'docker', 'run', '--rm', '-i',
                 '-v', '{}:/app'.format(temp_dir),
@@ -184,15 +201,16 @@ def main():
         else:
             # Check if php is installed
             try:
-                subprocess.check_output(['php', '-v'])
+                subprocess.check_call(['php', '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError:
+                module.fail_json(msg="PHP check failed. Ensure PHP is working.")
             except OSError:
-                module.fail_json(msg="PHP is not installed or not in PATH. Install PHP or set use_docker: true")
+                module.fail_json(msg="PHP binary not found in PATH. Install PHP or set use_docker: true")
 
             cmd = ['php', wrapper_path]
 
         # Prepare input
         payload = module.params.copy()
-        # Remove hidden args from payload sent to PHP to avoid overhead/confusion (PHP script doesn't read them, but good hygiene)
         payload.pop('_wrapper_content', None)
         payload.pop('_sdk_content', None)
         payload['action'] = 'ensure_record'
@@ -210,7 +228,12 @@ def main():
             stdout, stderr = p.communicate(input=input_json.encode('utf-8'))
 
             if p.returncode != 0:
-                module.fail_json(msg="Script execution failed with error code " + str(p.returncode), stderr=stderr.decode('utf-8'), stdout=stdout.decode('utf-8'))
+                # Sanitization: Ensure auth_password is not in stderr
+                safe_stderr = stderr.decode('utf-8')
+                if module.params['auth_password'] in safe_stderr:
+                    safe_stderr = safe_stderr.replace(module.params['auth_password'], '********')
+
+                module.fail_json(msg="Script execution failed with error code " + str(p.returncode), stderr=safe_stderr, stdout=stdout.decode('utf-8'))
 
             # Parse output
             try:
@@ -225,9 +248,6 @@ def main():
 
         except Exception as e:
             module.fail_json(msg="Exception while running script: " + str(e))
-
-    finally:
-        shutil.rmtree(temp_dir)
 
 if __name__ == '__main__':
     main()

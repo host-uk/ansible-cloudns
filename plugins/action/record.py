@@ -25,10 +25,17 @@ class ActionModule(ActionBase):
 
         current_dir = os.path.dirname(os.path.realpath(__file__))
         # Go up one level to plugins, then to module_utils/php
-        php_utils_dir = os.path.join(os.path.dirname(current_dir), 'module_utils', 'php')
+        php_utils_dir = os.path.realpath(os.path.join(os.path.dirname(current_dir), 'module_utils', 'php'))
 
-        wrapper_path = os.path.join(php_utils_dir, 'cloudns_wrapper.php')
-        sdk_path = os.path.join(php_utils_dir, 'ClouDNS_SDK.php')
+        wrapper_path = os.path.realpath(os.path.join(php_utils_dir, 'cloudns_wrapper.php'))
+        sdk_path = os.path.realpath(os.path.join(php_utils_dir, 'ClouDNS_SDK.php'))
+
+        # Ensure resolved paths stay within the expected php_utils_dir
+        for candidate, label in ((wrapper_path, 'cloudns_wrapper.php'), (sdk_path, 'ClouDNS_SDK.php')):
+            if not candidate.startswith(php_utils_dir + os.sep):
+                result['failed'] = True
+                result['msg'] = "Resolved path for {} is outside the expected directory {}".format(label, php_utils_dir)
+                return result
 
         if not os.path.exists(wrapper_path) or not os.path.exists(sdk_path):
              result['failed'] = True

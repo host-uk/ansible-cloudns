@@ -108,7 +108,10 @@ function ensure_record($cloudns, $params, &$result) {
                 $result['data'] = $resp;
             } else {
                 $result['failed'] = true;
-                $result['msg'] = "Failed to add record: " . ($resp['description'] ?? 'Unknown error');
+                $error_msg = $resp['description'] ?? 'Unknown error';
+                if (isset($resp['statusDescription'])) $error_msg .= ' ' . $resp['statusDescription'];
+                if (isset($resp['message'])) $error_msg .= ' ' . $resp['message'];
+                $result['msg'] = "Failed to add record: " . trim($error_msg);
             }
         } elseif (count($matches) == 1) {
             // Check if update needed
@@ -117,13 +120,13 @@ function ensure_record($cloudns, $params, &$result) {
             $current_ttl = $rec['ttl'];
             $record_id = $rec['id'];
 
-            if ($current_value != $value || $current_ttl != $ttl) {
+            if ((string)$current_value !== (string)$value || (int)$current_ttl !== (int)$ttl) {
                 // Update
                 $resp = $cloudns->dnsModifyRecord($domain, $record_id, $host, $value, $ttl);
                 if (isset($resp['status']) && $resp['status'] == 'Success') {
                     $result['changed'] = true;
                     $result['msg'] = "Record updated";
-                     $result['data'] = $resp;
+                    $result['data'] = $resp;
                 } else {
                     $result['failed'] = true;
                     $result['msg'] = "Failed to update record: " . ($resp['description'] ?? 'Unknown error');
@@ -169,17 +172,21 @@ function ensure_record($cloudns, $params, &$result) {
             }
 
             if (count($to_delete) > 0) {
+                $errors = [];
                 foreach ($to_delete as $id) {
                     $resp = $cloudns->dnsDeleteRecord($domain, $id);
                     if (isset($resp['status']) && $resp['status'] == 'Success') {
                         $result['changed'] = true;
                     } else {
-                         $result['failed'] = true;
-                         $result['msg'] = "Failed to delete record $id: " . ($resp['description'] ?? 'Unknown error');
-                         return; // Stop on error
+                        $result['failed'] = true;
+                        $errors[] = "Failed to delete record $id: " . ($resp['description'] ?? 'Unknown error');
                     }
                 }
-                $result['msg'] = "Records deleted";
+                if (!empty($errors)) {
+                    $result['msg'] = implode('; ', $errors);
+                } else {
+                    $result['msg'] = "Records deleted";
+                }
             } else {
                 $result['msg'] = "Record not found (matching value)";
             }
