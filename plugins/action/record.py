@@ -7,6 +7,7 @@ from ansible.utils.display import Display
 
 display = Display()
 
+
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         if task_vars is None:
@@ -38,9 +39,9 @@ class ActionModule(ActionBase):
                 return result
 
         if not os.path.exists(wrapper_path) or not os.path.exists(sdk_path):
-             result['failed'] = True
-             result['msg'] = "Could not find PHP files at {}. Ensure the collection is installed correctly.".format(php_utils_dir)
-             return result
+            result['failed'] = True
+            result['msg'] = "Could not find PHP files at {}. Ensure the collection is installed correctly.".format(php_utils_dir)
+            return result
 
         try:
             with open(wrapper_path, 'r') as f:

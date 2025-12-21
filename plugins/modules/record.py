@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright: (c) 2025, Jules
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -48,6 +51,16 @@ options:
       - Required when state is 'present'.
     required: false
     type: str
+  _wrapper_content:
+    description:
+      - Internal use only. PHP wrapper content.
+    type: str
+    required: false
+  _sdk_content:
+    description:
+      - Internal use only. PHP SDK content.
+    type: str
+    required: false
   ttl:
     description:
       - The TTL value.
@@ -71,7 +84,7 @@ options:
     type: str
     default: php:cli
 author:
-  - "Jules"
+  - "Jules (@jules)"
 '''
 
 EXAMPLES = r'''
@@ -110,9 +123,9 @@ data:
 import json
 import os
 import subprocess
-import tempfile
 import shutil
 from ansible.module_utils.basic import AnsibleModule
+
 
 def main():
     module = AnsibleModule(
@@ -129,8 +142,8 @@ def main():
             use_docker=dict(type='bool', default=False),
             docker_image=dict(type='str', default='php:cli'),
             # Hidden args injected by Action Plugin
-            _wrapper_content=dict(type='str', required=False),
-            _sdk_content=dict(type='str', required=False),
+            _wrapper_content=dict(type='str', required=False, no_log=True),
+            _sdk_content=dict(type='str', required=False, no_log=True),
         ),
         required_if=[
             ('state', 'present', ('value',))
@@ -219,27 +232,22 @@ def main():
 
         # Execute
         try:
-            p = subprocess.Popen(
-                cmd,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            stdout, stderr = p.communicate(input=input_json.encode('utf-8'))
+            rc, stdout, stderr = module.run_command(cmd, data=input_json, binary_data=False)
 
-            if p.returncode != 0:
+            if rc != 0:
                 # Sanitization: Ensure auth_password is not in stderr
-                safe_stderr = stderr.decode('utf-8')
+                # module.run_command usually returns str for stdout/stderr if binary_data=False (default on py3)
+                safe_stderr = stderr
                 if module.params['auth_password'] in safe_stderr:
                     safe_stderr = safe_stderr.replace(module.params['auth_password'], '********')
 
-                module.fail_json(msg="Script execution failed with error code " + str(p.returncode), stderr=safe_stderr, stdout=stdout.decode('utf-8'))
+                module.fail_json(msg="Script execution failed with error code " + str(rc), stderr=safe_stderr, stdout=stdout)
 
             # Parse output
             try:
-                result = json.loads(stdout.decode('utf-8'))
+                result = json.loads(stdout)
             except ValueError:
-                module.fail_json(msg="Failed to parse JSON response from script", output=stdout.decode('utf-8'), stderr=stderr.decode('utf-8'))
+                module.fail_json(msg="Failed to parse JSON response from script", output=stdout, stderr=stderr)
 
             if result.get('failed'):
                 module.fail_json(msg=result.get('msg', 'Unknown error'), **result)
@@ -248,6 +256,7 @@ def main():
 
         except Exception as e:
             module.fail_json(msg="Exception while running script: " + str(e))
+
 
 if __name__ == '__main__':
     main()
