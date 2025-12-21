@@ -6,14 +6,21 @@ It leverages the [official ClouDNS PHP SDK](https://github.com/ClouDNS/cloudns-p
 
 ## Requirements
 
+You can run the PHP code using either a local PHP installation OR via Docker.
+
+### Option 1: Local PHP
 - PHP 5.0 or higher must be installed on the machine where the module runs (usually the target node, or localhost if using `connection: local`).
+- `php-curl` and `php-json` extensions should be enabled.
+
+### Option 2: Docker
+- Docker must be installed and running on the machine where the module runs.
+- The module will use a PHP image (default `php:cli`) to execute the SDK.
+
 - Ansible 2.9+
 
 ## Installation
 
-You can install this collection directly from the repository or by building it.
-
-### From Source
+You can install this collection directly from the repository.
 
 ```bash
 ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk.git
@@ -26,6 +33,8 @@ ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk
 * `cloudns.cloudns.record`: Manage DNS records.
 
 ### Example Playbook
+
+#### Using Local PHP
 
 ```yaml
 - hosts: localhost
@@ -40,8 +49,17 @@ ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk
         type: A
         value: 1.2.3.4
         state: present
+```
 
-    - name: Update IP for a server
+#### Using Docker
+
+If you don't want to install PHP on the target machine, you can use Docker:
+
+```yaml
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Update IP for a server using Docker
       cloudns.cloudns.record:
         auth_id: 1234
         auth_password: "your_password"
@@ -49,6 +67,8 @@ ansible-galaxy collection install git+https://github.com/ClouDNS/cloudns-php-sdk
         host: server1
         type: A
         value: 10.0.0.1
+        use_docker: true
+        docker_image: php:8.2-cli
 ```
 
 ## SDK Information
