@@ -1,0 +1,4151 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ClouDNS API",
+    "description": "ClouDNS DNS Management API - Generated from PHP SDK",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ClouDNS Support",
+      "url": "https://www.cloudns.net"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.cloudns.net",
+      "description": "ClouDNS Production API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "auth_id": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "auth-id",
+        "description": "Standard account authentication ID"
+      },
+      "sub_auth_id": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "sub-auth-id",
+        "description": "Sub-user authentication ID"
+      },
+      "sub_auth_user": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "sub-auth-user",
+        "description": "Sub-user authentication username"
+      },
+      "auth_password": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "auth-password",
+        "description": "Authentication password"
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Response status (Success or failed)"
+          },
+          "statusDescription": {
+            "type": "string",
+            "description": "Description of the status"
+          }
+        }
+      },
+      "DnsRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Record ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "Record type (A, AAAA, CNAME, etc.)"
+          },
+          "host": {
+            "type": "string",
+            "description": "Host name"
+          },
+          "record": {
+            "type": "string",
+            "description": "Record value"
+          },
+          "ttl": {
+            "type": "integer",
+            "description": "Time to live in seconds"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Record priority (for MX, SRV)"
+          },
+          "weight": {
+            "type": "integer",
+            "description": "Record weight (for SRV)"
+          },
+          "port": {
+            "type": "integer",
+            "description": "Port number (for SRV)"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Record status (1=active, 0=inactive)"
+          }
+        }
+      },
+      "ZoneInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Zone name"
+          },
+          "type": {
+            "type": "string",
+            "description": "Zone type"
+          },
+          "zone": {
+            "type": "string",
+            "description": "Zone identifier"
+          },
+          "status": {
+            "type": "string",
+            "description": "Zone status"
+          }
+        }
+      },
+      "SoaRecord": {
+        "type": "object",
+        "properties": {
+          "primary_ns": {
+            "type": "string",
+            "description": "Primary nameserver"
+          },
+          "admin_mail": {
+            "type": "string",
+            "description": "Admin email"
+          },
+          "refresh": {
+            "type": "integer",
+            "description": "Refresh interval"
+          },
+          "retry": {
+            "type": "integer",
+            "description": "Retry interval"
+          },
+          "expire": {
+            "type": "integer",
+            "description": "Expire time"
+          },
+          "default_ttl": {
+            "type": "integer",
+            "description": "Default TTL"
+          }
+        }
+      },
+      "MailForward": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Mail forward ID"
+          },
+          "box": {
+            "type": "string",
+            "description": "Mailbox name"
+          },
+          "host": {
+            "type": "string",
+            "description": "Host"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination email"
+          }
+        }
+      },
+      "Group": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Group ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          }
+        }
+      },
+      "SubUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Sub-user ID"
+          },
+          "zones": {
+            "type": "integer",
+            "description": "Zones limit"
+          },
+          "mail_forwards": {
+            "type": "integer",
+            "description": "Mail forwards limit"
+          },
+          "status": {
+            "type": "string",
+            "description": "Sub-user status"
+          }
+        }
+      },
+      "SslCertificate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "SSL certificate ID"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain name"
+          },
+          "type": {
+            "type": "string",
+            "description": "Certificate type"
+          },
+          "status": {
+            "type": "string",
+            "description": "Certificate status"
+          }
+        }
+      },
+      "RecordTypes": {
+        "type": "string",
+        "enum": [
+          "A",
+          "AAAA",
+          "MX",
+          "CNAME",
+          "TXT",
+          "NS",
+          "SRV",
+          "WR",
+          "RP",
+          "SSHFP",
+          "ALIAS",
+          "CAA",
+          "TLSA",
+          "CERT",
+          "DS",
+          "PTR",
+          "NAPTR",
+          "HINFO",
+          "LOC",
+          "SPF"
+        ]
+      },
+      "ZoneTypes": {
+        "type": "string",
+        "enum": [
+          "master",
+          "slave",
+          "parked",
+          "geodns"
+        ]
+      }
+    },
+    "parameters": {
+      "DomainName": {
+        "name": "domain-name",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Domain name"
+      },
+      "RecordId": {
+        "name": "record-id",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Record ID"
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "default": 1
+        },
+        "description": "Page number"
+      },
+      "RowsPerPage": {
+        "name": "rows-per-page",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "default": 20
+        },
+        "description": "Rows per page"
+      }
+    }
+  },
+  "paths": {
+    "/dns/login.json": {
+      "post": {
+        "operationId": "apiLogin",
+        "summary": "Verify API credentials",
+        "tags": ["Authentication"],
+        "responses": {
+          "200": {
+            "description": "Login response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/register.json": {
+      "post": {
+        "operationId": "dnsRegisterDomainZone",
+        "summary": "Register a new domain zone",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "zone-type"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name to register"
+                  },
+                  "zone-type": {
+                    "type": "string",
+                    "enum": ["master", "slave", "parked", "geodns"],
+                    "description": "Type of zone"
+                  },
+                  "ns[]": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Nameservers (optional)"
+                  },
+                  "master-ip": {
+                    "type": "string",
+                    "description": "Master IP for slave zones"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zone registration response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/available-name-servers.json": {
+      "post": {
+        "operationId": "dnsAvailableNameServers",
+        "summary": "Get available nameservers",
+        "tags": ["Zones"],
+        "responses": {
+          "200": {
+            "description": "List of available nameservers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete.json": {
+      "post": {
+        "operationId": "dnsDeleteDomainZone",
+        "summary": "Delete a domain zone",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name to delete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zone deletion response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/list-zones.json": {
+      "post": {
+        "operationId": "dnsListZones",
+        "summary": "List all zones",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["page", "rows-per-page"],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "Page number"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search term"
+                  },
+                  "group-id": {
+                    "type": "string",
+                    "description": "Group ID filter"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of zones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ZoneInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-pages-count.json": {
+      "post": {
+        "operationId": "dnsGetPagesCount",
+        "summary": "Get pages count for zones",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["rows-per-page"],
+                "properties": {
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search term"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pages count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pages": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-zones-stats.json": {
+      "post": {
+        "operationId": "dnsGetZonesStatistics",
+        "summary": "Get zones statistics",
+        "tags": ["Zones"],
+        "responses": {
+          "200": {
+            "description": "Zones statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-mail-forwards-stats.json": {
+      "post": {
+        "operationId": "dnsGetMailForwardsStatistics",
+        "summary": "Get mail forwards statistics",
+        "tags": ["Mail Forwards"],
+        "responses": {
+          "200": {
+            "description": "Mail forwards statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-zone-info.json": {
+      "post": {
+        "operationId": "dnsGetZoneInformation",
+        "summary": "Get zone information",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zone information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/update-zone.json": {
+      "post": {
+        "operationId": "dnsUpdateZone",
+        "summary": "Update zone",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/update-status.json": {
+      "post": {
+        "operationId": "dnsUpdateStatus",
+        "summary": "Get zone update status",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/is-updated.json": {
+      "post": {
+        "operationId": "dnsIsUpdated",
+        "summary": "Check if zone is updated",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Is updated response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/change-status.json": {
+      "post": {
+        "operationId": "dnsChangeZonesStatus",
+        "summary": "Change zone status",
+        "tags": ["Zones"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "status": {
+                    "type": "integer",
+                    "description": "Status (1=active, 0=inactive)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status change response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/records.json": {
+      "post": {
+        "operationId": "dnsListRecords",
+        "summary": "List DNS records for a domain",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "Filter by host"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Filter by record type"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of DNS records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/DnsRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/add-record.json": {
+      "post": {
+        "operationId": "dnsAddRecord",
+        "summary": "Add a DNS record",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-type", "host", "record", "ttl"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "record-type": {
+                    "type": "string",
+                    "description": "Record type (A, AAAA, CNAME, MX, TXT, etc.)"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "Host name"
+                  },
+                  "record": {
+                    "type": "string",
+                    "description": "Record value"
+                  },
+                  "ttl": {
+                    "type": "integer",
+                    "description": "Time to live in seconds"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "Priority (for MX, SRV)"
+                  },
+                  "weight": {
+                    "type": "integer",
+                    "description": "Weight (for SRV)"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "Port (for SRV)"
+                  },
+                  "frame": {
+                    "type": "integer",
+                    "description": "Frame redirect"
+                  },
+                  "frame-title": {
+                    "type": "string",
+                    "description": "Frame title"
+                  },
+                  "frame-keywords": {
+                    "type": "string",
+                    "description": "Frame keywords"
+                  },
+                  "frame-description": {
+                    "type": "string",
+                    "description": "Frame description"
+                  },
+                  "save-path": {
+                    "type": "integer",
+                    "description": "Save path option"
+                  },
+                  "redirect-type": {
+                    "type": "integer",
+                    "description": "Redirect type (301, 302)"
+                  },
+                  "mail": {
+                    "type": "string",
+                    "description": "Mail for RP records"
+                  },
+                  "txt": {
+                    "type": "string",
+                    "description": "TXT for RP records"
+                  },
+                  "algorithm": {
+                    "type": "integer",
+                    "description": "Algorithm (for SSHFP, DS)"
+                  },
+                  "fptype": {
+                    "type": "integer",
+                    "description": "Fingerprint type (for SSHFP)"
+                  },
+                  "status": {
+                    "type": "integer",
+                    "description": "Record status (1=active, 0=inactive)"
+                  },
+                  "geodns-location": {
+                    "type": "integer",
+                    "description": "GeoDNS location ID"
+                  },
+                  "caa_flag": {
+                    "type": "integer",
+                    "description": "CAA flag"
+                  },
+                  "caa_type": {
+                    "type": "string",
+                    "description": "CAA type"
+                  },
+                  "caa_value": {
+                    "type": "string",
+                    "description": "CAA value"
+                  },
+                  "mobile-meta": {
+                    "type": "integer",
+                    "description": "Mobile meta"
+                  },
+                  "tlsa_usage": {
+                    "type": "integer",
+                    "description": "TLSA usage"
+                  },
+                  "tlsa_selector": {
+                    "type": "integer",
+                    "description": "TLSA selector"
+                  },
+                  "tlsa_matching_type": {
+                    "type": "integer",
+                    "description": "TLSA matching type"
+                  },
+                  "key-tag": {
+                    "type": "integer",
+                    "description": "Key tag (for DS)"
+                  },
+                  "digest-type": {
+                    "type": "integer",
+                    "description": "Digest type (for DS)"
+                  },
+                  "order": {
+                    "type": "integer",
+                    "description": "Order (for NAPTR)"
+                  },
+                  "pref": {
+                    "type": "integer",
+                    "description": "Preference (for NAPTR)"
+                  },
+                  "flag": {
+                    "type": "string",
+                    "description": "Flag (for NAPTR)"
+                  },
+                  "params": {
+                    "type": "string",
+                    "description": "Params (for NAPTR)"
+                  },
+                  "regexp": {
+                    "type": "string",
+                    "description": "Regexp (for NAPTR)"
+                  },
+                  "replace": {
+                    "type": "string",
+                    "description": "Replace (for NAPTR)"
+                  },
+                  "cert-type": {
+                    "type": "integer",
+                    "description": "Certificate type (for CERT)"
+                  },
+                  "cert-key-tag": {
+                    "type": "integer",
+                    "description": "Certificate key tag (for CERT)"
+                  },
+                  "cert-algorithm": {
+                    "type": "integer",
+                    "description": "Certificate algorithm (for CERT)"
+                  },
+                  "lat-deg": {
+                    "type": "integer",
+                    "description": "Latitude degrees (for LOC)"
+                  },
+                  "lat-min": {
+                    "type": "integer",
+                    "description": "Latitude minutes (for LOC)"
+                  },
+                  "lat-sec": {
+                    "type": "number",
+                    "description": "Latitude seconds (for LOC)"
+                  },
+                  "lat-dir": {
+                    "type": "string",
+                    "description": "Latitude direction (for LOC)"
+                  },
+                  "long-deg": {
+                    "type": "integer",
+                    "description": "Longitude degrees (for LOC)"
+                  },
+                  "long-min": {
+                    "type": "integer",
+                    "description": "Longitude minutes (for LOC)"
+                  },
+                  "long-sec": {
+                    "type": "number",
+                    "description": "Longitude seconds (for LOC)"
+                  },
+                  "long-dir": {
+                    "type": "string",
+                    "description": "Longitude direction (for LOC)"
+                  },
+                  "altitude": {
+                    "type": "number",
+                    "description": "Altitude (for LOC)"
+                  },
+                  "size": {
+                    "type": "number",
+                    "description": "Size (for LOC)"
+                  },
+                  "h-precision": {
+                    "type": "number",
+                    "description": "Horizontal precision (for LOC)"
+                  },
+                  "v-precision": {
+                    "type": "number",
+                    "description": "Vertical precision (for LOC)"
+                  },
+                  "cpu": {
+                    "type": "string",
+                    "description": "CPU (for HINFO)"
+                  },
+                  "os": {
+                    "type": "string",
+                    "description": "OS (for HINFO)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Add record response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/mod-record.json": {
+      "post": {
+        "operationId": "dnsModifyRecord",
+        "summary": "Modify a DNS record",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id", "host", "record", "ttl"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "record-id": {
+                    "type": "string",
+                    "description": "Record ID to modify"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "Host name"
+                  },
+                  "record": {
+                    "type": "string",
+                    "description": "Record value"
+                  },
+                  "ttl": {
+                    "type": "integer",
+                    "description": "Time to live in seconds"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "Priority (for MX, SRV)"
+                  },
+                  "weight": {
+                    "type": "integer",
+                    "description": "Weight (for SRV)"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "Port (for SRV)"
+                  },
+                  "frame": {
+                    "type": "integer"
+                  },
+                  "frame-title": {
+                    "type": "string"
+                  },
+                  "frame-keywords": {
+                    "type": "string"
+                  },
+                  "frame-description": {
+                    "type": "string"
+                  },
+                  "save-path": {
+                    "type": "integer"
+                  },
+                  "redirect-type": {
+                    "type": "integer"
+                  },
+                  "mail": {
+                    "type": "string"
+                  },
+                  "txt": {
+                    "type": "string"
+                  },
+                  "algorithm": {
+                    "type": "integer"
+                  },
+                  "fptype": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "type": "integer"
+                  },
+                  "geodns-location": {
+                    "type": "integer"
+                  },
+                  "caa_flag": {
+                    "type": "integer"
+                  },
+                  "caa_type": {
+                    "type": "string"
+                  },
+                  "caa_value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Modify record response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete-record.json": {
+      "post": {
+        "operationId": "dnsDeleteRecord",
+        "summary": "Delete a DNS record",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "record-id": {
+                    "type": "string",
+                    "description": "Record ID to delete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete record response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/copy-records.json": {
+      "post": {
+        "operationId": "dnsCopyRecords",
+        "summary": "Copy records from another domain",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "from-domain"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Target domain name"
+                  },
+                  "from-domain": {
+                    "type": "string",
+                    "description": "Source domain name"
+                  },
+                  "delete-current-records": {
+                    "type": "integer",
+                    "description": "Delete current records first (1=yes, 0=no)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Copy records response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/records-import.json": {
+      "post": {
+        "operationId": "dnsImportRecords",
+        "summary": "Import records from BIND format",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "format", "content"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "format": {
+                    "type": "string",
+                    "description": "Import format (bind)"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "BIND zone file content"
+                  },
+                  "delete-existing-records": {
+                    "type": "integer",
+                    "description": "Delete existing records first"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/records-export.json": {
+      "post": {
+        "operationId": "dnsExportRecordsBIND",
+        "summary": "Export records in BIND format",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BIND zone file content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "zone": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-available-record-types.json": {
+      "post": {
+        "operationId": "dnsGetAvailableRecords",
+        "summary": "Get available record types for zone type",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["zone-type"],
+                "properties": {
+                  "zone-type": {
+                    "type": "string",
+                    "description": "Zone type"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Available record types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-available-ttl.json": {
+      "post": {
+        "operationId": "dnsGetAvailableTTL",
+        "summary": "Get available TTL values",
+        "tags": ["Records"],
+        "responses": {
+          "200": {
+            "description": "Available TTL values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/soa-details.json": {
+      "post": {
+        "operationId": "dnsGetSOA",
+        "summary": "Get SOA record details",
+        "tags": ["SOA"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOA record details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoaRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/modify-soa.json": {
+      "post": {
+        "operationId": "dnsModifySOA",
+        "summary": "Modify SOA record",
+        "tags": ["SOA"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "primary-ns", "admin-mail", "refresh", "retry", "expire", "default-ttl"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "primary-ns": {
+                    "type": "string",
+                    "description": "Primary nameserver"
+                  },
+                  "admin-mail": {
+                    "type": "string",
+                    "description": "Admin email"
+                  },
+                  "refresh": {
+                    "type": "integer",
+                    "description": "Refresh interval"
+                  },
+                  "retry": {
+                    "type": "integer",
+                    "description": "Retry interval"
+                  },
+                  "expire": {
+                    "type": "integer",
+                    "description": "Expire time"
+                  },
+                  "default-ttl": {
+                    "type": "integer",
+                    "description": "Default TTL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Modify SOA response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-dynamic-url.json": {
+      "post": {
+        "operationId": "dnsGetDynamicURL",
+        "summary": "Get dynamic DNS URL for a record",
+        "tags": ["Dynamic DNS"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string",
+                    "description": "Domain name"
+                  },
+                  "record-id": {
+                    "type": "string",
+                    "description": "Record ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dynamic URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/disable-dynamic-url.json": {
+      "post": {
+        "operationId": "dnsDisableDynamicURL",
+        "summary": "Disable dynamic DNS URL",
+        "tags": ["Dynamic DNS"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "record-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/change-dynamic-url.json": {
+      "post": {
+        "operationId": "dnsChangeDynamicURL",
+        "summary": "Change dynamic DNS URL",
+        "tags": ["Dynamic DNS"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "record-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/change-record-status.json": {
+      "post": {
+        "operationId": "dnsChangeRecordStatus",
+        "summary": "Change record status",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "record-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "record-id": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/axfr-import.json": {
+      "post": {
+        "operationId": "dnsImportViaTransfer",
+        "summary": "Import zone via AXFR transfer",
+        "tags": ["Zone Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "server"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "server": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/add-master-server.json": {
+      "post": {
+        "operationId": "dnsAddMasterServer",
+        "summary": "Add master server for slave zone",
+        "tags": ["Master Servers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "master-ip"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "master-ip": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete-master-server.json": {
+      "post": {
+        "operationId": "dnsDeleteMasterServer",
+        "summary": "Delete master server",
+        "tags": ["Master Servers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "master-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "master-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/master-servers.json": {
+      "post": {
+        "operationId": "dnsListMasterServer",
+        "summary": "List master servers",
+        "tags": ["Master Servers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Master servers list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-mailforward-servers.json": {
+      "post": {
+        "operationId": "dnsAvailableMailForwards",
+        "summary": "Get available mail forward servers",
+        "tags": ["Mail Forwards"],
+        "responses": {
+          "200": {
+            "description": "Available servers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/add-mail-forward.json": {
+      "post": {
+        "operationId": "dnsAddMailForward",
+        "summary": "Add mail forward",
+        "tags": ["Mail Forwards"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "box", "host", "destination"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "box": {
+                    "type": "string",
+                    "description": "Mailbox name"
+                  },
+                  "host": {
+                    "type": "string"
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete-mail-forward.json": {
+      "post": {
+        "operationId": "dnsDeleteMailForward",
+        "summary": "Delete mail forward",
+        "tags": ["Mail Forwards"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "mail-forward-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "mail-forward-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/modify-mail-forward.json": {
+      "post": {
+        "operationId": "dnsModifyMailForward",
+        "summary": "Modify mail forward",
+        "tags": ["Mail Forwards"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "box", "host", "destination", "mail-forward-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "box": {
+                    "type": "string"
+                  },
+                  "host": {
+                    "type": "string"
+                  },
+                  "destination": {
+                    "type": "string"
+                  },
+                  "mail-forward-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/mail-forwards.json": {
+      "post": {
+        "operationId": "dnsListMailForwards",
+        "summary": "List mail forwards",
+        "tags": ["Mail Forwards"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mail forwards list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MailForward"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/add-cloud-domain.json": {
+      "post": {
+        "operationId": "dnsAddCloudDomain",
+        "summary": "Add cloud domain",
+        "tags": ["Cloud Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "cloud-domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "cloud-domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete-cloud-domain.json": {
+      "post": {
+        "operationId": "dnsDeleteCloudDomain",
+        "summary": "Delete cloud domain",
+        "tags": ["Cloud Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/set-master-cloud-domain.json": {
+      "post": {
+        "operationId": "dnsChangeCloudMaster",
+        "summary": "Set cloud domain as master",
+        "tags": ["Cloud Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/list-cloud-domains.json": {
+      "post": {
+        "operationId": "dnsListCloudDomains",
+        "summary": "List cloud domains",
+        "tags": ["Cloud Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cloud domains list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/axfr-add.json": {
+      "post": {
+        "operationId": "dnsAllowNewIP",
+        "summary": "Allow IP for AXFR",
+        "tags": ["Zone Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "ip"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "ip": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/axfr-remove.json": {
+      "post": {
+        "operationId": "dnsDeleteAllowedIP",
+        "summary": "Remove allowed IP for AXFR",
+        "tags": ["Zone Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/axfr-list.json": {
+      "post": {
+        "operationId": "dnsListAllowedIP",
+        "summary": "List allowed IPs for AXFR",
+        "tags": ["Zone Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Allowed IPs list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/statistics-hourly.json": {
+      "post": {
+        "operationId": "dnsHourlyStatistics",
+        "summary": "Get hourly statistics",
+        "tags": ["Statistics"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "year", "month", "day"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  },
+                  "month": {
+                    "type": "integer"
+                  },
+                  "day": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hourly statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/statistics-daily.json": {
+      "post": {
+        "operationId": "dnsDailyStatistics",
+        "summary": "Get daily statistics",
+        "tags": ["Statistics"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "year", "month"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  },
+                  "month": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Daily statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/statistics-monthly.json": {
+      "post": {
+        "operationId": "dnsMonthlyStatistics",
+        "summary": "Get monthly statistics",
+        "tags": ["Statistics"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "year"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Monthly statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/statistics-yearly.json": {
+      "post": {
+        "operationId": "dnsYearlyStatistics",
+        "summary": "Get yearly statistics",
+        "tags": ["Statistics"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Yearly statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/statistics-last-30-days.json": {
+      "post": {
+        "operationId": "dnsLast30DaysStatistics",
+        "summary": "Get last 30 days statistics",
+        "tags": ["Statistics"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Last 30 days statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-parked-templates.json": {
+      "post": {
+        "operationId": "dnsGetParkedTemplates",
+        "summary": "Get parked domain templates",
+        "tags": ["Parked Domains"],
+        "responses": {
+          "200": {
+            "description": "Parked templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-parked-settings.json": {
+      "post": {
+        "operationId": "dnsGetParkedSettings",
+        "summary": "Get parked domain settings",
+        "tags": ["Parked Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parked settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/set-parked-settings.json": {
+      "post": {
+        "operationId": "dnsModifyParkedSettings",
+        "summary": "Modify parked domain settings",
+        "tags": ["Parked Domains"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "template"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "template": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "type": "string"
+                  },
+                  "contact-form": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/get-geodns-locations.json": {
+      "post": {
+        "operationId": "dnsListGeoDNSLocations",
+        "summary": "List GeoDNS locations",
+        "tags": ["GeoDNS"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "GeoDNS locations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/add-group.json": {
+      "post": {
+        "operationId": "dnsAddGroup",
+        "summary": "Add a group",
+        "tags": ["Groups"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "name"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/change-group.json": {
+      "post": {
+        "operationId": "dnsChangeGroup",
+        "summary": "Change domain group",
+        "tags": ["Groups"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["domain-name", "group-id"],
+                "properties": {
+                  "domain-name": {
+                    "type": "string"
+                  },
+                  "group-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/list-groups.json": {
+      "post": {
+        "operationId": "dnsListGroups",
+        "summary": "List groups",
+        "tags": ["Groups"],
+        "responses": {
+          "200": {
+            "description": "Groups list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/delete-group.json": {
+      "post": {
+        "operationId": "dnsDeleteGroup",
+        "summary": "Delete a group",
+        "tags": ["Groups"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["group-id"],
+                "properties": {
+                  "group-id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/rename-group.json": {
+      "post": {
+        "operationId": "dnsRenameGroup",
+        "summary": "Rename a group",
+        "tags": ["Groups"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["group-id", "new-name"],
+                "properties": {
+                  "group-id": {
+                    "type": "string"
+                  },
+                  "new-name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/add.json": {
+      "post": {
+        "operationId": "subAddNewUser",
+        "summary": "Add a sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["password", "zones", "mail-forwards"],
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  },
+                  "zones": {
+                    "type": "integer"
+                  },
+                  "mail-forwards": {
+                    "type": "integer"
+                  },
+                  "ip": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/get-info.json": {
+      "post": {
+        "operationId": "subGetUserInfo",
+        "summary": "Get sub-user info",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sub-user info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/list-sub-users.json": {
+      "post": {
+        "operationId": "subListSubUsers",
+        "summary": "List sub-users",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["page", "rows-per-page"],
+                "properties": {
+                  "page": {
+                    "type": "integer"
+                  },
+                  "rows-per-page": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sub-users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubUser"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/modify-zones-limit.json": {
+      "post": {
+        "operationId": "subModifyZonesLimit",
+        "summary": "Modify sub-user zones limit",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "zones"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "zones": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/modify-mail-forwards-limit.json": {
+      "post": {
+        "operationId": "subModifyMailForwardsLimit",
+        "summary": "Modify sub-user mail forwards limit",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "mail-forwards"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "mail-forwards": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/add-ip.json": {
+      "post": {
+        "operationId": "subAddIP",
+        "summary": "Add IP to sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "ip"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "ip": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/remove-ip.json": {
+      "post": {
+        "operationId": "subRemoveIP",
+        "summary": "Remove IP from sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "ip"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "ip": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/modify-status.json": {
+      "post": {
+        "operationId": "subModifyStatus",
+        "summary": "Modify sub-user status",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "status"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/modify-password.json": {
+      "post": {
+        "operationId": "subModifyPassword",
+        "summary": "Modify sub-user password",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "password"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/delegate-zone.json": {
+      "post": {
+        "operationId": "subDelegateZone",
+        "summary": "Delegate zone to sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "zone"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "zone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/remove-zone-delegation.json": {
+      "post": {
+        "operationId": "subRemoveZoneDelegation",
+        "summary": "Remove zone delegation from sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "zone"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "zone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sub-users/delete.json": {
+      "post": {
+        "operationId": "subDeleteSubUser",
+        "summary": "Delete a sub-user",
+        "tags": ["Sub Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/create.json": {
+      "post": {
+        "operationId": "monitoringCreate",
+        "summary": "Create a monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "check_type", "ip", "check_period"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Check name (max 32 chars, alphanumeric with - . and space)"
+                  },
+                  "check_type": {
+                    "type": "integer",
+                    "description": "Check type ID (1=HTTP, 2=HTTPS, 3=Ping 15%, 4=Ping 25%, 5=Ping 50%, 6=TCP, 7=UDP, 8=DNS, 9=SMTP, 10=POP3, 11=IMAP)"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "IP address to monitor (IPv4 or IPv6)"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "Hostname for HTTP/HTTPS/DNS checks"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "Port number (required for TCP/UDP/SMTP checks)"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Path for HTTP/HTTPS checks"
+                  },
+                  "check_period": {
+                    "type": "integer",
+                    "description": "Check interval in seconds (60, 300, 600, 900, 1800, 3600)"
+                  },
+                  "check_region": {
+                    "type": "string",
+                    "description": "Monitoring region (global, europe, namerica)"
+                  },
+                  "latency_limit": {
+                    "type": "integer",
+                    "description": "Latency limit threshold in ms"
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "description": "Timeout in seconds"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Content to search for in HTTP response"
+                  },
+                  "content_type": {
+                    "type": "string",
+                    "description": "Content match type (contains, not_contains, regex)"
+                  },
+                  "query_type": {
+                    "type": "string",
+                    "description": "DNS query type (A, AAAA, MX, etc.)"
+                  },
+                  "query_response": {
+                    "type": "string",
+                    "description": "Expected DNS response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Create monitoring check response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/update.json": {
+      "post": {
+        "operationId": "monitoringUpdate",
+        "summary": "Update a monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Check name"
+                  },
+                  "check_type": {
+                    "type": "integer",
+                    "description": "Check type ID"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "IP address to monitor"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "Hostname"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "Port number"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "URL path"
+                  },
+                  "check_period": {
+                    "type": "integer",
+                    "description": "Check interval in seconds"
+                  },
+                  "check_region": {
+                    "type": "string",
+                    "description": "Monitoring region"
+                  },
+                  "status": {
+                    "type": "integer",
+                    "description": "Status (1=active, 0=inactive)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update monitoring check response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/delete.json": {
+      "post": {
+        "operationId": "monitoringDelete",
+        "summary": "Delete a monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID to delete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/list.json": {
+      "post": {
+        "operationId": "monitoringList",
+        "summary": "List all monitoring checks",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "Page number"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of monitoring checks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-monitoring-check.json": {
+      "post": {
+        "operationId": "monitoringGetCheck",
+        "summary": "Get a specific monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Monitoring check details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-pages-count.json": {
+      "post": {
+        "operationId": "monitoringGetPagesCount",
+        "summary": "Get monitoring checks page count",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pages count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pages": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-plan.json": {
+      "post": {
+        "operationId": "monitoringGetPlan",
+        "summary": "Get monitoring plan details",
+        "tags": ["Monitoring"],
+        "responses": {
+          "200": {
+            "description": "Monitoring plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-history.json": {
+      "post": {
+        "operationId": "monitoringGetHistory",
+        "summary": "Get monitoring check history",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Page number"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Monitoring history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-history-pages.json": {
+      "post": {
+        "operationId": "monitoringGetHistoryPages",
+        "summary": "Get monitoring history pages count",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "History pages count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pages": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-uptime-changes.json": {
+      "post": {
+        "operationId": "monitoringGetUptimeChanges",
+        "summary": "Get monitoring uptime changes",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Page number"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uptime changes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-uptime-changes-pages.json": {
+      "post": {
+        "operationId": "monitoringGetUptimeChangesPages",
+        "summary": "Get uptime changes pages count",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pages count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pages": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/list-nodes.json": {
+      "post": {
+        "operationId": "monitoringListNodes",
+        "summary": "List all monitoring nodes/locations",
+        "tags": ["Monitoring"],
+        "responses": {
+          "200": {
+            "description": "List of monitoring nodes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-available-intervals.json": {
+      "post": {
+        "operationId": "monitoringGetAvailableIntervals",
+        "summary": "Get available monitoring intervals",
+        "tags": ["Monitoring"],
+        "responses": {
+          "200": {
+            "description": "Available intervals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/get-available-regions.json": {
+      "post": {
+        "operationId": "monitoringGetAvailableRegions",
+        "summary": "Get available monitoring regions",
+        "tags": ["Monitoring"],
+        "responses": {
+          "200": {
+            "description": "Available regions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/create-notification.json": {
+      "post": {
+        "operationId": "monitoringCreateNotification",
+        "summary": "Create a monitoring notification",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "type", "value"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Notification type (mail, sms, webhook)"
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "Notification value (email, phone, URL)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Create notification response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/list-notifications.json": {
+      "post": {
+        "operationId": "monitoringListNotifications",
+        "summary": "List notifications for a monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Page number"
+                  },
+                  "rows-per-page": {
+                    "type": "integer",
+                    "description": "Rows per page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/delete-notification.json": {
+      "post": {
+        "operationId": "monitoringDeleteNotification",
+        "summary": "Delete a monitoring notification",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "notification_id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "notification_id": {
+                    "type": "integer",
+                    "description": "Notification ID to delete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete notification response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/reset-heartbeat-url.json": {
+      "post": {
+        "operationId": "monitoringResetHeartbeatUrl",
+        "summary": "Reset heartbeat URL for a monitoring check",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reset heartbeat URL response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/add-group.json": {
+      "post": {
+        "operationId": "monitoringAddGroup",
+        "summary": "Add a monitoring group",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Group name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Add group response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/list-groups.json": {
+      "post": {
+        "operationId": "monitoringListGroups",
+        "summary": "List monitoring groups",
+        "tags": ["Monitoring"],
+        "responses": {
+          "200": {
+            "description": "List of monitoring groups",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/delete-group.json": {
+      "post": {
+        "operationId": "monitoringDeleteGroup",
+        "summary": "Delete a monitoring group",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["group-id"],
+                "properties": {
+                  "group-id": {
+                    "type": "integer",
+                    "description": "Group ID to delete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete group response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/rename-group.json": {
+      "post": {
+        "operationId": "monitoringRenameGroup",
+        "summary": "Rename a monitoring group",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["group-id", "new-name"],
+                "properties": {
+                  "group-id": {
+                    "type": "integer",
+                    "description": "Group ID"
+                  },
+                  "new-name": {
+                    "type": "string",
+                    "description": "New group name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rename group response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/change-group.json": {
+      "post": {
+        "operationId": "monitoringChangeGroup",
+        "summary": "Change monitoring check group",
+        "tags": ["Monitoring"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "group-id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Monitoring check ID"
+                  },
+                  "group-id": {
+                    "type": "integer",
+                    "description": "New group ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Change group response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {"name": "Authentication", "description": "API authentication operations"},
+    {"name": "Zones", "description": "DNS zone management"},
+    {"name": "Records", "description": "DNS record management"},
+    {"name": "SOA", "description": "SOA record management"},
+    {"name": "Dynamic DNS", "description": "Dynamic DNS operations"},
+    {"name": "Zone Transfer", "description": "AXFR zone transfer operations"},
+    {"name": "Master Servers", "description": "Master server management for slave zones"},
+    {"name": "Mail Forwards", "description": "Mail forwarding management"},
+    {"name": "Cloud Domains", "description": "Cloud domain management"},
+    {"name": "Statistics", "description": "DNS statistics"},
+    {"name": "Parked Domains", "description": "Parked domain settings"},
+    {"name": "GeoDNS", "description": "Geographic DNS settings"},
+    {"name": "Groups", "description": "Domain group management"},
+    {"name": "Sub Users", "description": "Sub-user management"},
+    {"name": "Monitoring", "description": "HTTP, DNS, Ping, SMTP monitoring checks"}
+  ]
+}
