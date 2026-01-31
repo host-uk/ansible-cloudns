@@ -1,0 +1,13 @@
+# CodeRabbit Configuration
+# Inherits from: https://github.com/host-uk/coderabbit/.coderabbit.yaml
+
+reviews:
+  review_status: false
+  
+  path_instructions:
+    - path: "**/Dockerfile*"
+      instructions: "Check for security best practices, multi-stage builds, and pinned versions"
+    - path: "**/*.yml"
+      instructions: "Ansible/Docker Compose - validate syntax and idempotency"
+    - path: "**/*.sh"
+      instructions: "Shell scripts - check for shellcheck compliance and proper error handling"
